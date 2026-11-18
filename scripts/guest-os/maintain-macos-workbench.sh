@@ -83,10 +83,11 @@ for app in "$kit"/*.app "$kit"/project/*.app; do
     if [[ -e $target ]]; then
         [[ -d $target && ! -L $target ]] || exit 1
         # Missing or damaged installed files are repairable. The incoming app
-        # is fully verified, and an existing signing team remains a constraint.
+        # is fully verified. Ad-hoc development builds may migrate a signed
+        # installation, but one release team cannot replace another.
         previous_team=$(codesign -dv "$target" 2>&1 | sed -n 's/^TeamIdentifier=//p' || true)
         next_team=$(codesign -dv "$app" 2>&1 | sed -n 's/^TeamIdentifier=//p')
-        [[ -z $previous_team || $previous_team == not\ set || $previous_team == "$next_team" ]] || exit 1
+        [[ -z $previous_team || $previous_team == not\ set || $next_team == not\ set || $previous_team == "$next_team" ]] || exit 1
     fi
     index=${#apps[@]}
     ditto "$app" "$backup/new-app-$index"

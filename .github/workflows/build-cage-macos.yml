@@ -40,6 +40,8 @@ jobs:
           go-version-file: go.mod
       - name: Run focused gate regression tests
         run: go test ./internal/cage -run 'TestProxyRevision' -count=1
+      - name: Run focused native component maintenance tests
+        run: python3 scripts/guest-os/tests/native-maintenance.py NativeMaintenance.test_ad_hoc_components_can_migrate_a_signed_installation NativeMaintenance.test_a_different_signing_team_cannot_replace_installed_components
       - uses: actions/setup-node@v4
         with:
           node-version: 24

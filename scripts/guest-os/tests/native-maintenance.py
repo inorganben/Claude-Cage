@@ -124,7 +124,11 @@ stat() {
     else echo 0; fi
 }
 find() { :; }
-codesign() { if [[ $1 == -dv ]]; then echo 'TeamIdentifier=FIXTURE'; fi; }
+codesign() {
+    if [[ $1 == -dv ]]; then
+        if [[ $* == */kit/* ]]; then echo "TeamIdentifier=${CAGE_TEST_NEW_TEAM:-FIXTURE}"; else echo 'TeamIdentifier=FIXTURE'; fi
+    fi
+}
 ditto() { cp -R "$1" "$2"; }
 sudo() { shift 2; "$@"; }
 ps() { :; }
@@ -184,10 +188,24 @@ nc() { test "$1/$2/$3" = "-z/127.0.0.1/5900" && test -f "$QA_ROOT/loaded"; }
             self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual((self.root / 'loaded').read_text(), 'loaded\n')
 
-    def run_install(self, fail=False):
+    def run_install(self, fail=False, new_team=None):
         env = {**os.environ, 'BASH_ENV': str(self.root / 'environment.sh'), 'CAGE_TEST_FAIL_REGISTER': '1' if fail else '0'}
+        if new_team is not None:
+            env['CAGE_TEST_NEW_TEAM'] = new_team
         return subprocess.run(['/bin/bash', str(self.kit / 'maintain-macos-workbench.sh'), str(self.kit), 'cage', 'components'],
                               capture_output=True, text=True, env=env, timeout=15)
+
+    def test_ad_hoc_components_can_migrate_a_signed_installation(self):
+        self.prepare_installer()
+        result = self.run_install(new_team='not set')
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.assertEqual((self.root / 'Applications/Cage Guest Window.app/Contents/MacOS/CageGuestWindow').read_text(), 'current-Window')
+
+    def test_a_different_signing_team_cannot_replace_installed_components(self):
+        self.prepare_installer()
+        result = self.run_install(new_team='OTHER')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual((self.root / 'Applications/Cage Guest Window.app/Contents/MacOS/CageGuestWindow').read_text(), 'previous-window')
 
     def test_cli_tool_update_adds_github_and_preserves_login(self):
         self.prepare_installer()
