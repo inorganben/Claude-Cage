@@ -574,7 +574,7 @@ func (s *Server) apply(v savedProfile, validate bool) error {
 		wasReady = macOSInstanceRunning(s.instanceDir(), s.macosGuest.Backend)
 	}
 	s.mu.Unlock()
-	changed := old != v.Config || oldPrefs.AutoTimezone != v.Preferences.AutoTimezone || oldPrefs.AutoLanguage != v.Preferences.AutoLanguage
+	changed := !old.Equal(v.Config) || oldPrefs.AutoTimezone != v.Preferences.AutoTimezone || oldPrefs.AutoLanguage != v.Preferences.AutoLanguage
 	if changed && validate && old.RequireManagedProxy(s.profile) == nil {
 		s.setMessage("正在验证新出口，现有环境保持运行…")
 		loc, e := probeEnvironmentLocation(s.operationContext(), v.Config, v.Preferences)

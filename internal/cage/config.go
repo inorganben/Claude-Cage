@@ -35,6 +35,14 @@ func DefaultConfig() Config {
 	return Config{ProxyURL: "socks5://127.0.0.1:17896", DNSURL: "https://1.1.1.1/dns-query", Timezone: "Etc/UTC", Locale: "en_US.UTF-8", BrowserLanguage: "en-US"}
 }
 
+// Equal compares the persisted configuration. GuestProfile is derived from
+// the profile directory on Load, so two equivalent configurations loaded
+// separately must not compare unequal merely because their pointers differ.
+func (c Config) Equal(other Config) bool {
+	c.GuestProfile, other.GuestProfile = nil, nil
+	return c == other
+}
+
 func Load(path string) (Config, error) {
 	var c Config
 	f, err := os.Open(path)

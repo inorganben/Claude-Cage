@@ -123,7 +123,7 @@ func (g *EgressGate) SyncProxyRevision(cfg Config) error {
 		before.ExitPolicy, after.ExitPolicy = ExitPolicy{}, ExitPolicy{}
 	}
 	before.ProxyRevision, after.ProxyRevision = "", ""
-	if before != after || cfg.ProxyRevision == "" {
+	if !before.Equal(after) || cfg.ProxyRevision == "" {
 		g.mu.Unlock()
 		return errors.New("出口地址或环境设置变化需要重启环境")
 	}

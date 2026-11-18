@@ -3,12 +3,33 @@ package cage
 import (
 	"context"
 	"encoding/json"
+	"github.com/sylvinus/agent-vm/internal/guestprofile"
 	"github.com/sylvinus/agent-vm/internal/managedproxy"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
 )
+
+func TestProxyRevisionIgnoresDerivedGuestProfile(t *testing.T) {
+	cfg := DefaultConfig()
+	cfg.ProxyRevision = "same-node"
+	cfg.GuestProfile = &guestprofile.Profile{}
+	g, err := NewEgressGate(cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer g.Close("done")
+	next := cfg
+	next.GuestProfile = &guestprofile.Profile{}
+	next.ExitPolicy = cfg.ExitPolicy.BindMissing(ExitLocation{IP: "8.8.8.8", CountryCode: "US"})
+	if err = g.SyncProxyRevision(next); err != nil {
+		t.Fatal("equivalent configuration was rejected after reloading the guest profile:", err)
+	}
+	if got := g.Status(); got.Mode != GateClosed || got.Configuration != next.Fingerprint() {
+		t.Fatal("first binding was not adopted")
+	}
+}
 
 func TestProxyRevisionRevokesOldReportAtSameEndpoint(t *testing.T) {
 	cfg := DefaultConfig()

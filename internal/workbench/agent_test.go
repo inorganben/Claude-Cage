@@ -90,7 +90,7 @@ func TestAgentSettingsPatchPreservesOmittedFields(t *testing.T) {
 		t.Fatalf("preferences lost: %+v", s.preferences)
 	}
 	after, _ := cage.Load(s.configPath)
-	if before != after {
+	if !before.Equal(after) {
 		t.Fatal("unrelated network config changed")
 	}
 	for _, input := range []string{`{"patch":{"proxy_url":"socks5://127.0.0.1:1"}}`, `{"patch":{"keyboard":null}}`, `{"patch":{"keyboard":"invalid"}}`, `{"patch":{}}`} {

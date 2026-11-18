@@ -38,6 +38,8 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+      - name: Run focused gate regression tests
+        run: go test ./internal/cage -run 'TestProxyRevision' -count=1
       - uses: actions/setup-node@v4
         with:
           node-version: 24
