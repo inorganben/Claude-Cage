@@ -42,6 +42,11 @@ jobs:
         run: go test ./internal/cage -run 'TestProxyRevision' -count=1
       - name: Run focused native component maintenance tests
         run: python3 scripts/guest-os/tests/native-maintenance.py NativeMaintenance.test_ad_hoc_components_can_migrate_a_signed_installation NativeMaintenance.test_a_different_signing_team_cannot_replace_installed_components
+      - name: Run maintenance compositor tests
+        run: |
+          check=$(mktemp -d "$RUNNER_TEMP/cage-maintenance.XXXXXX")
+          xcrun swiftc -parse-as-library -O scripts/guest-os/macos-maintenance-compositor.swift scripts/guest-os/tests/macos-maintenance-compositor-test.swift -o "$check/maintenance-test"
+          "$check/maintenance-test"
       - uses: actions/setup-node@v4
         with:
           node-version: 24
