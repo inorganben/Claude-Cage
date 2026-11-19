@@ -377,6 +377,14 @@ hdiutil() {
         self.assertEqual((self.root / 'usr/local/libexec/cage-sshfs').read_text(), 'previous-project-helper')
         self.assertFalse((self.root / 'Applications/Cage Guest Clipboard.app').exists())
 
+    def test_compositor_filter_is_not_limited_to_intel_macs(self):
+        source = (SOURCE / 'macos-maintenance.swift').read_text()
+        start = source.index('if owner != front.processIdentifier {')
+        end = source.index('throw Failure(7, "maintenance_window_unavailable")', start)
+        block = source[start:end]
+        self.assertIn('macMaintenanceCompositorSurface(', block)
+        self.assertNotIn('#if arch(', block)
+
     def test_activation_failure_restores_files_before_receipt(self):
         manifest = self.prepare_installer()
         agents = self.root / 'Users/cage/Library/LaunchAgents'

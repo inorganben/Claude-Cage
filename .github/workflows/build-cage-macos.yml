@@ -41,7 +41,7 @@ jobs:
       - name: Run focused gate regression tests
         run: go test ./internal/cage -run 'TestProxyRevision' -count=1
       - name: Run focused native component maintenance tests
-        run: python3 scripts/guest-os/tests/native-maintenance.py NativeMaintenance.test_ad_hoc_components_can_migrate_a_signed_installation NativeMaintenance.test_a_different_signing_team_cannot_replace_installed_components
+        run: python3 scripts/guest-os/tests/native-maintenance.py NativeMaintenance.test_ad_hoc_components_can_migrate_a_signed_installation NativeMaintenance.test_a_different_signing_team_cannot_replace_installed_components NativeMaintenance.test_compositor_filter_is_not_limited_to_intel_macs
       - name: Run maintenance compositor tests
         run: |
           check=$(mktemp -d "$RUNNER_TEMP/cage-maintenance.XXXXXX")

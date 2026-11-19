@@ -149,7 +149,6 @@ enum MacMaintenance {
                     "display": [display.minX, display.minY, display.width, display.height]]
             }
             if owner != front.processIdentifier {
-                #if arch(x86_64)
                 if let owner, let app = NSRunningApplication(processIdentifier: owner),
                    let bundle = app.bundleIdentifier,
                    macMaintenanceCompositorSurface(bundle: bundle,
@@ -158,7 +157,6 @@ enum MacMaintenance {
                        bounds: bounds, display: display, systemMajor: ProcessInfo.processInfo.operatingSystemVersion.majorVersion) {
                     continue
                 }
-                #endif
                 covering.append((bounds, owner, window[kCGWindowNumber as String] as? UInt32))
             }
         }
